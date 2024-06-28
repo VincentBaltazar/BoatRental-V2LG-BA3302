@@ -1,2 +1,3 @@
 <p1>Screenshot<p1/>
-<img src = "Screenshot/s1.png"
+<img src="Screenshots/s1.png">
+s
