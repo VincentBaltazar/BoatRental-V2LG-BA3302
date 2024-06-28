@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Boat Rental</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+<?php
+
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "boatRental";
+
+$conn = mysqli_connect($servername, $username, $password, $dbname);
+
+if (!$conn) {
+    echo "<script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Connection failed',
+            text: '" . mysqli_connect_error() . "'
+        });
+    </script>";
+}
+// echo "<script>
+//         Swal.fire({
+//             icon: 'success',
+//             title: 'Connected successfully',
+//             text: 'You have connected to the database.'
+//         });
+//     </script>";
+?>
