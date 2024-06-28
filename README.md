@@ -1,7 +1,7 @@
 <p1>Screenshot<p1/>
 <br>
 <p1>Landing page<p1/>
-<img src="Screenshots/s1.png">s
+<img src="Screenshots/s1.png">
 <img src="Screenshots/s2.png">
 <img src="Screenshots/s3.png">
 <img src="Screenshots/s4.png">
