@@ -1,6 +1,9 @@
 <p1>Vincent Rafael Baltazar<p1/>
+<br>
 <p1>Lester Mendoza<p1/>
+<br>
 <p1>John Louie Seguente<p1/>
+<br>
 <p1>Screenshot<p1/>
 <br>
 <p1>Landing page<p1/>
