@@ -1,1 +1,1 @@
-<p1>Screeshhot<p1/>
+<p1>Screenshot<p1/>
