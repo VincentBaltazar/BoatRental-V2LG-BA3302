@@ -1,3 +1,43 @@
+<?php
+include_once('includes/connection.php');
+
+$query = "SELECT * FROM captains";
+$result = mysqli_query($db, $query);
+
+$cards = '';
+if (mysqli_num_rows($result) > 0) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        $boatImages = json_decode($row['boat']);
+        $boatImage = 'path/to/default/image.jpg'; 
+        if (!empty($boatImages)) {
+            $boatImage = 'uploads/' . htmlspecialchars($boatImages[0]); 
+        }
+
+        $licenseID = htmlspecialchars($row['licenseID']);
+        $boatName = htmlspecialchars($row['boatName']);
+        $boatDescription = htmlspecialchars($row['boatDescription']);
+        $boatPrice = htmlspecialchars($row['boatPrice']);
+        $capacity = htmlspecialchars($row['capacity']);
+        $cards .= "
+        <a href='boatDetails.php?licenseID=$licenseID' class='card-link'>
+        <div class='card'>
+            <img src='$boatImage' alt='Boat Image'>
+            <div class='card-container'>
+                <h4>$boatName</h4>
+                <p>$boatDescription</p>
+                <p class='price'>$ $boatPrice per hour</p>
+                <p class='capacity'>Capacity: $capacity people</p>
+            </div>
+        </div>
+        </a>";
+    }
+} else {
+    $cards .= '<p>No boats found.</p>';
+}
+?>
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,7 +66,7 @@
             border-top-left-radius: 10px;
             border-top-right-radius: 10px;
             width: 100%;
-            height: auto;
+            height: 300px;
         }
 
         .card-container {
@@ -113,60 +153,9 @@
             <h2>Rent A Boat</h2>
         </div>
         <div id="filtersDisplay" class="mb-4" style="width: 100%; text-align: left;"></div>
-        <div class="card">
-            <img src="img\boat\boat1.jpg" alt="Boat Image">
-            <div class="card-container">
-                <h4>Luxury Yacht</h4>
-                <p>Enjoy a luxurious experience on the water with our top-of-the-line yacht.</p>
-                <p class="price">$500 per hour</p>
-                <p class="capacity">Capacity: 10 people</p>
+            <div class="container" style="background-color: white; height: auto; display: flex; flex-wrap: wrap; justify-content: space-around; padding: 10px;">
+                <?php echo $cards; ?>
             </div>
-        </div>
-        <div class="card">
-            <img src="img\boat\boat1.jpg" alt="Boat Image">
-            <div class="card-container">
-                <h4>Luxury Yacht</h4>
-                <p>Enjoy a luxurious experience on the water with our top-of-the-line yacht.</p>
-                <p class="price">$500 per hour</p>
-                <p class="capacity">Capacity: 10 people</p>
-            </div>
-        </div>
-        <div class="card">
-            <img src="img\boat\boat1.jpg" alt="Boat Image">
-            <div class="card-container">
-                <h4>Luxury Yacht</h4>
-                <p>Enjoy a luxurious experience on the water with our top-of-the-line yacht.</p>
-                <p class="price">$500 per hour</p>
-                <p class="capacity">Capacity: 10 people</p>
-            </div>
-        </div>
-        <div class="card">
-            <img src="img\boat\boat1.jpg" alt="Boat Image">
-            <div class="card-container">
-                <h4>Luxury Yacht</h4>
-                <p>Enjoy a luxurious experience on the water with our top-of-the-line yacht.</p>
-                <p class="price">$500 per hour</p>
-                <p class="capacity">Capacity: 10 people</p>
-            </div>
-        </div>
-        <div class="card">
-            <img src="img\boat\boat1.jpg" alt="Boat Image">
-            <div class="card-container">
-                <h4>Luxury Yacht</h4>
-                <p>Enjoy a luxurious experience on the water with our top-of-the-line yacht.</p>
-                <p class="price">$500 per hour</p>
-                <p class="capacity">Capacity: 10 people</p>
-            </div>
-        </div>
-        <div class="card">
-            <img src="img\boat\boat1.jpg" alt="Boat Image">
-            <div class="card-container">
-                <h4>Luxury Yacht</h4>
-                <p>Enjoy a luxurious experience on the water with our top-of-the-line yacht.</p>
-                <p class="price">$500 per hour</p>
-                <p class="capacity">Capacity: 10 people</p>
-            </div>
-        </div>
     </section>
     <section class="footer" style="height: 200px; background-color: gray;">
         <p style="text-align: center; color: white; font-size: 50px; padding-top: 50px;">BALSA FOOTER</p>
