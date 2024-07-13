@@ -65,7 +65,7 @@
                     class="me-2"><small>Sign In with Google</small></button>
                 </div>
                 <div class="row">
-                    <small class="sign" style="text-align: center;">Don't have an account?<a href="#">Sign Up</a></small>
+                    <small class="sign" style="text-align: center;">Don't have an account?<a href="signup.php">Sign Up</a></small>
                 </div>
             </div>
         </div>
@@ -74,9 +74,7 @@
 
     <script>
     function handleGoogleSignIn() {
-        // Add your Google sign-in logic here
-        alert('Google Sign-In clicked');
-        // Example: window.location.href = 'google-sign-in-url';
+        window.location.href = 'http://localhost:3000/auth/google'; 
     }
     </script>
 </body>

@@ -36,17 +36,22 @@ if (isset($_GET['licenseID'])) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Merriweather+Sans:400,700" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic" rel="stylesheet" type="text/css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/SimpleLightbox/2.1.0/simpleLightbox.min.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
     <style>
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            height: 100vh;
+        .container1 {
             align-items: center;
         }
         .details {
-            grid-column: 1 / span 2;
             text-align: center;
         }
         .details img {
@@ -55,57 +60,154 @@ if (isset($_GET['licenseID'])) {
             height: 450px;
         }
         .boatDet {
+            position: relative; 
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            border: 1px solid black;
             text-align: center;
-            height: 300px;
+            height: 1000px;
             background-color: white;
+            width: 100%;
         }
         .ratingsFeed {
+            position: fixed;
+            top: 70%; 
+            right: 30px; 
+            transform: translateY(-50%); 
             border-radius: 10px;
             border: 1px solid black;
-            height: 300px;
             background-color: white;
+            width: 400px;
+            padding: 20px;
+            overflow: auto;
+            z-index: 100; 
         }
-        .ratingsFeed p {
-            margin: 10px;
-            font-size: 25px;
-        }
-        .profile-image {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            margin-left: 20px;
-            margin-top: 10px;
-        }
+
         .flex-container {
             display: flex;
             align-items: center;
+            margin-bottom: 10px;
         }
-        .flex-container p {
-            margin: 10;
-            font-size: 50px;
+
+        .captain-name {
+            margin-right: 10px;
+            font-weight: bold;
         }
+
+        .profile-image {
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+        }
+
+        .price, .capacity, .crew-members {
+            margin: 5px 0;
+        }
+
+        .feedback-container {
+            display: flex;
+            flex-wrap: wrap;
+            width: 100%;
+            background-color: white;
+            margin-top: 150px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .feedback-header {
+            display: flex;
+            align-items: center;
+            border-bottom: 2px solid black;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        .feedback-header h4 {
+            margin: 0;
+            margin-left: 10px;
+        }
+        .feedback-card {
+            width: calc(50% - 10px);
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            margin-right: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .feedback-card h5 {
+            margin: 0;
+        }
+        .stars {
+            color: gold;
+            font-size: 1.2em;
+            margin: 5px 0;
+        }
+        .feedback-text {
+            font-size: 0.9em;
+            color: #555;
+        }
+        @media (max-width: 768px) {
+            .feedback-card {
+                width: 100%;
+                margin-right: 0;
+            }
+        }
+        .boat-name {
+            width: 100%;
+            border-bottom: 2px solid black;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-align: left;
+            padding-left: 20px;
+        }
+
     </style>
 </head>
-<body>
-    <div class="container">
+<body id="page-top">
+    <?php include_once("includes/navbar.php") ?>
+    <div class="container1">
         <div class="details">
             <img src="<?php echo $boatImage; ?>" alt="Boat Image" class="boat-image">
         </div>
         <div class="boatDet">
-            <h2><?php echo $boatName; ?></h2>
-            <div style="background-color: yellow; width: 70%; margin-left: 100px; height: 200px; border-radius: 20px 70px 20px 70px;">
-                <p><?php echo $boatDescription; ?></p>
+            <h2 class="boat-name"><?php echo $boatName; ?></h2>
+            <p class="desc" style="margin-left: 40px; font-size: 30px; margin-top: 5px;"><?php echo $boatDescription; ?></p>
+            <div class="ratingsFeed">
+                <div class="flex-container">
+                    <p><?php echo $capName; ?></p>
+                    <img src="<?php echo $profilePic; ?>" alt="Profile Image" class="profile-image">
+                </div>
+                <p class="price">Price: $<?php echo $boatPrice; ?> per hour</p>
+                <p class="capacity">Capacity: <?php echo $capacity; ?> people</p>
+                <p class="crew-members">Crew Members: <?php echo $crewMembers; ?></p>
             </div>
-        </div>
-        <div class="ratingsFeed">
-            <div class="flex-container">
-                <p><?php echo $capName; ?></p>
-                <img src="<?php echo $profilePic; ?>" alt="Profile Image" class="profile-image">
-            </div>
-            <p class="price">Price: $<?php echo $boatPrice; ?> per hour</p>
-            <p class="capacity">Capacity: <?php echo $capacity; ?> people</p>
-            <p class="crew-members">Crew Members: <?php echo $crewMembers; ?></p>
+            <div class="feedback-container">
+                <div class="feedback-header">
+                    <h4>Ratings and Feedback</h4>
+                </div>
+                <div class="feedback-card">
+                    <h5>Tourist Name</h5>
+                    <div class="stars">★★★★★</div>
+                    <div class="feedback-text">
+                        This is the feedback text provided by the tourist. It gives details about their experience and thoughts.
+                    </div>
+                </div>
+                <div class="feedback-card">
+                    <h5>Tourist Name</h5>
+                    <div class="stars">★★★★★</div>
+                    <div class="feedback-text">
+                        This is the feedback text provided by the tourist. It gives details about their experience and thoughts.
+                    </div>
+                </div>
+            </div>  
         </div>
     </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/SimpleLightbox/2.1.0/simpleLightbox.min.js"></script>
+    <script src="js/scripts.js"></script>
+    <script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
 </body>
 </html>

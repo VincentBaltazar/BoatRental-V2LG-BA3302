@@ -1,7 +1,11 @@
 <?php
 include_once('includes/connection.php');
 
-$query = "SELECT * FROM captains";
+$cards_per_page = 6;
+$current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($current_page - 1) * $cards_per_page;
+
+$query = "SELECT * FROM captains LIMIT $cards_per_page OFFSET $offset";
 $result = mysqli_query($db, $query);
 
 $cards = '';
@@ -34,7 +38,14 @@ if (mysqli_num_rows($result) > 0) {
 } else {
     $cards .= '<p>No boats found.</p>';
 }
+
+$total_query = "SELECT COUNT(*) AS total FROM captains";
+$total_result = mysqli_query($db, $total_query);
+$total_row = mysqli_fetch_assoc($total_result);
+$total_cards = $total_row['total'];
+$total_pages = ceil($total_cards / $cards_per_page);
 ?>
+
 
 
 
@@ -97,39 +108,34 @@ if (mysqli_num_rows($result) > 0) {
         }
         .btn-light.btn-xl:hover {
             background-color: orange; 
-            color: #333; 
-            
+            color: #333;   
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .pagination a {
+            margin: 0 5px;
+            padding: 10px 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #555;
+        }
+        .pagination a:hover {
+            background-color: #f0f0f0;
+        }
+        .pagination .active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
         }
     </style>
 </head>
 <body id="page-top">
-    <nav class="navbar navbar-expand-lg navbar-light fixed-top py-3 text-black" id="mainNav">
-        <div class="container px-4 px-lg-5">
-            <a class="navbar-brand" href="#page-top">BALSA</a>
-            <button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarResponsive">
-                <div class="ml-auto d-flex align-items-center">
-                    <a class="nav-link icon-size navbar-brand" style="margin-left: 900px; margin-right: 25px;" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="bi bi-bell"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationsDropdown">
-                        <a class="dropdown-item" href="#">No new notifications</a>
-                    </div>
-                    <a class="nav-link icon-size dropdown-toggle navbar-brand" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="bi bi-person-circle"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="profileDropdown">
-                        <a class="dropdown-item" href="profile.php">View Profile</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="logout.php">Logout</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
-    
+    <?php include_once("includes/navbar.php") ?>
     <section class="page-section" style="background-image: linear-gradient(to bottom, rgba(92, 77, 66, 0.8), rgba(92, 77, 66, 0.8)), url('assets/img/fortune.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
         <div class="container px-4 px-lg-5 text-center">
         <div class="mb-4">
@@ -157,6 +163,19 @@ if (mysqli_num_rows($result) > 0) {
                 <?php echo $cards; ?>
             </div>
     </section>
+    <div class="pagination">
+        <?php if ($current_page > 1): ?>
+            <a href="?page=<?php echo $current_page - 1; ?>">&laquo; Previous</a>
+        <?php endif; ?>
+        
+        <?php for ($page = 1; $page <= $total_pages; $page++): ?>
+            <a href="?page=<?php echo $page; ?>" class="<?php if ($page == $current_page) echo 'active'; ?>"><?php echo $page; ?></a>
+        <?php endfor; ?>
+        
+        <?php if ($current_page < $total_pages): ?>
+            <a href="?page=<?php echo $current_page + 1; ?>">Next &raquo;</a>
+        <?php endif; ?>
+    </div>
     <section class="footer" style="height: 200px; background-color: gray;">
         <p style="text-align: center; color: white; font-size: 50px; padding-top: 50px;">BALSA FOOTER</p>
     </section>
