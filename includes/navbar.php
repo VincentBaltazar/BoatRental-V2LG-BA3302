@@ -12,6 +12,34 @@
     <link href="https://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic" rel="stylesheet" type="text/css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/SimpleLightbox/2.1.0/simpleLightbox.min.css" rel="stylesheet" />
     <link href="css\style.css" rel="stylesheet" />
+    <style>
+    .navbar .nav-item {
+        position: relative;
+    }
+
+    .dropdown-menu.show {
+        display: block;
+        position: absolute;
+        top: 100%;
+        right: 0; 
+        margin-top: 0.5rem; 
+        transform: none !important; 
+    }
+
+    .icon-size {
+        font-size: 1.5rem;
+    }
+
+    .navbar .badge {
+        font-size: 0.8rem;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    </style>
+
 </head>
 <body id="page-top">
 <nav class="navbar navbar-expand-lg navbar-light fixed-top py-3 text-black" id="mainNav">
@@ -22,25 +50,30 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarResponsive">
             <div class="ms-auto d-flex align-items-center">
-                <a class="nav-link icon-size navbar-brand position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="bi bi-bell"></i>
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
-                </a>
-                <div class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="notificationsDropdown">
-                    <a class="dropdown-item" href="#">No new notifications</a>
+                <div class="nav-item dropdown">
+                    <a class="nav-link icon-size navbar-brand position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="bi bi-bell"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="notificationsDropdown">
+                        <a class="dropdown-item" href="#">No new notifications</a>
+                    </div>
                 </div>
-                <a class="nav-link icon-size dropdown-toggle navbar-brand" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="bi bi-person-circle"></i>
-                </a>
-                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-                    <a class="dropdown-item" href="profile.php">View Profile</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="login.php">Logout</a>
+                <div class="nav-item dropdown">
+                    <a class="nav-link icon-size dropdown-toggle navbar-brand" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="bi bi-person-circle"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                        <a class="dropdown-item" href="profile.php">View Profile</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="login.php">Logout</a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </nav>
+
 
 
 </body>

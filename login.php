@@ -1,3 +1,7 @@
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -79,8 +83,9 @@
     </script>
 </body>
 </html>
+
 <?php
-include_once('includes/connection.php'); 
+include_once('includes/connection.php');
 
 $email = '';
 $password = '';
@@ -90,7 +95,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
         $password = $_POST['password'];
 
-        $sql = "SELECT * FROM admin WHERE email = ? LIMIT 1";
+        $sql = "SELECT * FROM account WHERE email = ? LIMIT 1";
         $stmt = $db->prepare($sql); 
         $stmt->bind_param("s", $email);
         $stmt->execute();
@@ -99,41 +104,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($result->num_rows == 1) {
             $user = $result->fetch_assoc();
 
-            // if (password_verify($password, $user['password'])) {
-            //     // Password is correct, start the session and redirect
-            //     session_start();
-            //     $_SESSION['id'] = $user['id'];
-            //     $_SESSION['name'] = $user['name'];
-
-            //     echo "<script>
-            //         Swal.fire({
-            //             icon: 'success',
-            //             title: 'Login Successful',
-            //             text: 'Redirecting to home page...',
-            //             timer: 2000,
-            //             showConfirmButton: false
-            //         }).then(() => {
-            //             window.location.href = 'index.php';
-            //         });
-            // </script>";
-            if ($password === $user['password']) {
+            if (password_verify($password, $user['password'])) {
                 session_start();
                 $_SESSION['id'] = $user['id'];
                 $_SESSION['name'] = $user['firstName'];
 
-                echo "<script>
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Login Successful',
-                        text: 'Redirecting to home page...',
-                        timer: 5000,
-                        showConfirmButton: false
-                    }).then(() => {
-                        window.location.href = 'index.php';
-                    });
-                </script>";
+                if ($user['accountType'] == 'admin') {
+                    echo "<script>
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Login Successful',
+                            text: 'Redirecting to admin dashboard...',
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = 'adminIndex.php';
+                        });
+                    </script>";
+                } else {
+                    echo "<script>
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Login Successful',
+                            text: 'Redirecting to home page...',
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = 'index.php';
+                        });
+                    </script>";
+                }
             } else {
-                // Invalid password
                 echo "<script>
                     Swal.fire({
                         icon: 'error',
@@ -143,7 +144,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </script>";
             }
         } else {
-            // Invalid email
             echo "<script>
                 Swal.fire({
                     icon: 'error',
@@ -153,7 +153,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </script>";
         }
     } else {
-        // Email or password fields are empty
         echo "<script>
             Swal.fire({
                 icon: 'error',
@@ -164,5 +163,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
+
 
 
