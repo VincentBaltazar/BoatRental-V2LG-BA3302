@@ -16,7 +16,7 @@
 <body id="page-top">
 <nav class="navbar navbar-expand-lg navbar-light fixed-top py-3 text-black" id="mainNav">
     <div class="container px-4 px-lg-5">
-        <a class="navbar-brand" href="#page-top">BALSA</a>
+        <a class="navbar-brand" href="index.php">BALSA</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -35,7 +35,7 @@
                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
                     <a class="dropdown-item" href="profile.php">View Profile</a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="logout.php">Logout</a>
+                    <a class="dropdown-item" href="login.php">Logout</a>
                 </div>
             </div>
         </div>

@@ -3474,6 +3474,9 @@ textarea.form-control-lg {
 
 .dropdown-menu.show {
   display: block;
+  position: absolute;
+  right: 220px;
+
 }
 
 .dropdown-header {

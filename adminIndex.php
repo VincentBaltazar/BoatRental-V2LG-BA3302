@@ -7,9 +7,9 @@ $result = mysqli_query($db, $query);
 
 if ($result && $result->num_rows > 0) {
     $row = $result->fetch_assoc();
-    $crewMembersCount = $row['total_crew_members']; // Corrected variable name to match SQL alias
+    $crewMembersCount = $row['total_crew_members']; 
 } else {
-    $crewMembersCount = 0; // Default value if no crew members found
+    $crewMembersCount = 0; 
 }
 
 
@@ -19,9 +19,9 @@ $result = mysqli_query($db, $query);
 
 if ($result && $result->num_rows > 0) {
     $row = $result->fetch_assoc();
-    $totalCaptainCount = $row['total_captain']; // Corrected variable name to match SQL alias
+    $totalCaptainCount = $row['total_captain']; 
 } else {
-    $totalCaptainCount = 0; // Default value if no crew members found
+    $totalCaptainCount = 0; 
 }
 ?>
 
@@ -41,12 +41,15 @@ if ($result && $result->num_rows > 0) {
             gap: 20px;
             margin-top: 20px;
         }
-        .grid-items {
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
+        .grid-items1 {
+            height: 150px;
+            display: grid;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            border: 2px solid black;
+            background-color: white;
+            border-radius: 15px;
         }
     </style>
 </head>
@@ -62,9 +65,9 @@ if ($result && $result->num_rows > 0) {
             </div>
             <div class="grid-container">
                 <?php
-                echo '<div class="grid-items">' . $crewMembersCount . ' </div>';
-                echo '<div class="grid-items">' . $totalCaptainCount . ' </div>';
-                echo '<div class="grid-items">' . "Tourist" . ' </div>';
+                echo '<div class="grid-items1">' . $crewMembersCount . ' </div>';
+                echo '<div class="grid-items1">' . $totalCaptainCount . ' </div>';
+                echo '<div class="grid-items1">' . "Tourist" . ' </div>';
                 ?>
             </div>
         </section>

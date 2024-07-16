@@ -3,7 +3,6 @@ include_once('includes\connection.php');
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['action']) && $_POST['action'] === 'saveCaptain') {
-        // Validate and sanitize inputs
         $capName = isset($_POST['forCaptainName']) ? mysqli_real_escape_string($db, $_POST['forCaptainName']) : '';
         $profile = isset($_FILES['forProfile']) ? $_FILES['forProfile'] : [];
         $licenseNum = isset($_POST['forLicenseNumber']) ? mysqli_real_escape_string($db, $_POST['forLicenseNumber']) : '';
@@ -144,7 +143,6 @@ if (mysqli_num_rows($result) > 0) {
         $rows .= '<tr>';
         $rows .= '<td>' . htmlspecialchars($row['captainName']) . '</td>';
 
-        // Profile Picture
         if (!empty($row['profilePic'])) { 
             $profileImagePath = 'uploads/' . $row['profilePic'];
             $rows .= '<td><img src="' . $profileImagePath . '" alt="Profile Image" style="max-width: 50px; max-height: 50px;"></td>';
@@ -156,7 +154,6 @@ if (mysqli_num_rows($result) > 0) {
         $rows .= '<td>' . htmlspecialchars($row['crewMembers']) . '</td>';
         $rows .= '<td>' . htmlspecialchars($row['boatName']) . '</td>';
 
-        // Boat Images
         $boatImages = json_decode($row['boat']);
         if ($boatImages !== null && json_last_error() === JSON_ERROR_NONE) {
             $rows .= '<td>';
@@ -481,7 +478,6 @@ if (mysqli_num_rows($result) > 0) {
         </section>
     </section>
 
-    <!-- Adding Modal -->
     <div id="overlay" class="overlay">
         <div id="myModal" class="modal">
             <div class="modal-content">
@@ -621,7 +617,33 @@ if (mysqli_num_rows($result) > 0) {
             });
         }
     }
-
     </script>
+    <script>
+        let btn = document.querySelector('#btn');
+        let sidebar = document.querySelector('.sidebar');
+        let sections = document.querySelectorAll('.section');
+        let navLinks = document.querySelectorAll('.nav-links a');
+
+        btn.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            sections.forEach(section => {
+                section.classList.toggle('shifted');
+            });
+        });
+
+        function showSection(id, element) {
+            sections.forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(id).classList.remove('hidden');
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+            });
+            element.classList.add('active');
+        }
+    </script>
+    <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
+
 </body>
 </html>
