@@ -64,7 +64,6 @@ if (isset($_GET['licenseID'])) {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            border: 1px solid black;
             text-align: center;
             height: 1000px;
             background-color: white;
@@ -76,12 +75,13 @@ if (isset($_GET['licenseID'])) {
             right: 30px; 
             transform: translateY(-50%); 
             border-radius: 10px;
-            border: 1px solid black;
             background-color: white;
             width: 400px;
+            height: 300px;
             padding: 20px;
             overflow: auto;
             z-index: 100; 
+            box-shadow: 0px 3px 40px #000;
         }
 
         .flex-container {
@@ -90,8 +90,10 @@ if (isset($_GET['licenseID'])) {
             margin-bottom: 10px;
         }
 
-        .captain-name {
-            margin-right: 10px;
+        .captainName {
+            margin-left: 10px;
+            margin-top: 10px;
+            font-size: 40px;
             font-weight: bold;
         }
 
@@ -148,20 +150,30 @@ if (isset($_GET['licenseID'])) {
             font-size: 0.9em;
             color: #555;
         }
+        .boat-name {
+            width: 98%;
+            border-bottom: 2px solid black;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            MARGIN-LEFT: 20px;
+            text-align: left;
+            padding-left: 20px;
+            border-bottom: 2px solid black;
+        }
         @media (max-width: 768px) {
             .feedback-card {
                 width: 100%;
                 margin-right: 0;
             }
         }
-        .boat-name {
-            width: 100%;
-            border-bottom: 2px solid black;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            text-align: left;
-            padding-left: 20px;
+        .rent{
+            height: 40px;
+            width: 150px;
+            margin-top: 20px;
+            border-radius: 10px;
+            background-color: orange;
         }
+        
 
     </style>
 </head>
@@ -173,15 +185,16 @@ if (isset($_GET['licenseID'])) {
         </div>
         <div class="boatDet">
             <h2 class="boat-name"><?php echo $boatName; ?></h2>
-            <p class="desc" style="margin-left: 40px; font-size: 30px; margin-top: 5px;"><?php echo $boatDescription; ?></p>
+            <p class="desc" style="margin-left: 40px; font-size: 30px; margin-top: 5px;"><?php echo $boatDescription; ?></p>    
             <div class="ratingsFeed">
                 <div class="flex-container">
-                    <p><?php echo $capName; ?></p>
                     <img src="<?php echo $profilePic; ?>" alt="Profile Image" class="profile-image">
+                    <p class="captainName"><?php echo $capName; ?></p>
                 </div>
                 <p class="price">Price: $<?php echo $boatPrice; ?> per hour</p>
                 <p class="capacity">Capacity: <?php echo $capacity; ?> people</p>
                 <p class="crew-members">Crew Members: <?php echo $crewMembers; ?></p>
+                <button class="rent">Rent This Boat</button>
             </div>
             <div class="feedback-container">
                 <div class="feedback-header">
