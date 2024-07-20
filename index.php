@@ -1,11 +1,32 @@
 <?php
+session_start();
 include_once('includes/connection.php');
+
+
+$firstName = isset($_SESSION['firstName']) ? $_SESSION['firstName'] : 'Guest';
+$lastName = isset($_SESSION['lastName']) ? $_SESSION['lastName'] : '';
 
 $cards_per_page = 6;
 $current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($current_page - 1) * $cards_per_page;
 
-$query = "SELECT * FROM captains LIMIT $cards_per_page OFFSET $offset";
+$query = "SELECT * FROM captains WHERE 1";
+if (isset($_GET['capacity']) && $_GET['capacity'] != '') {
+    $capacity = (int)$_GET['capacity'];
+    $query .= " AND capacity >= $capacity";
+}
+if (isset($_GET['price']) && $_GET['price'] != '') {
+    $price = (int)$_GET['price'];
+    $query .= " AND boatPrice <= $price";
+}
+// Add availability filter if needed, modify as per your availability logic
+// if (isset($_GET['availability']) && $_GET['availability'] != '') {
+//     $availability = $_GET['availability'];
+//     $query .= " AND availability_condition_here";
+// }
+
+$query .= " LIMIT $cards_per_page OFFSET $offset";
+
 $result = mysqli_query($db, $query);
 
 $cards = '';
@@ -39,12 +60,28 @@ if (mysqli_num_rows($result) > 0) {
     $cards .= '<p>No boats found.</p>';
 }
 
-$total_query = "SELECT COUNT(*) AS total FROM captains";
+$total_query = "SELECT COUNT(*) AS total FROM captains WHERE 1";
+
+if (isset($_GET['capacity']) && $_GET['capacity'] != '') {
+    $capacity = (int)$_GET['capacity'];
+    $total_query .= " AND capacity >= $capacity";
+}
+if (isset($_GET['price']) && $_GET['price'] != '') {
+    $price = (int)$_GET['price'];
+    $total_query .= " AND boatPrice <= $price";
+}
+// Add availability filter if needed
+// if (isset($_GET['availability']) && $_GET['availability'] != '') {
+//     $availability = $_GET['availability'];
+//     $total_query .= " AND availability_condition_here";
+// }
+
 $total_result = mysqli_query($db, $total_query);
 $total_row = mysqli_fetch_assoc($total_result);
 $total_cards = $total_row['total'];
 $total_pages = ceil($total_cards / $cards_per_page);
 ?>
+
 
 
 
@@ -138,19 +175,24 @@ $total_pages = ceil($total_cards / $cards_per_page);
     <?php include_once("includes/navbar.php") ?>
     <section class="page-section" style="background-image: linear-gradient(to bottom, rgba(92, 77, 66, 0.8), rgba(92, 77, 66, 0.8)), url('assets/img/fortune.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
         <div class="container px-4 px-lg-5 text-center">
-        <div class="mb-4">
-                <label for="priceFilter" class="form-label" style="margin-bottom: 10px; margin-right: 50px; color: white;">Price Range:</label>
-                <input type="number" class="form-control" placeholder="Price" id="priceValue" oninput="updatePriceFilter(this.value)" style="width: 200px; display: inline-block;" min="0" max="100000" step="100" >
-            </div>
-            <div class="mb-4">
-                <label for="capacityFilter" class="form-label" style="margin-bottom: 10px; margin-right: 75px; color: white;">Capacity:</label>
-                <input type="number" class="form-control" placeholder="Guest Number" id="capacityValue" oninput="updateCapacityFilter(this.value)" style="width: 200px; display: inline-block;" min="0" max="30" step="5" >
-            </div>
-            <div class="mb-4">
-                <label for="availabilityRange" class="form-label" style="margin-bottom: 50px; color: white;">Availability Range:</label>
-                <input type="date" class="form-control" style="width: 200px; display: inline-block;" id="availabilityRange" onchange="updateAvailabilityValue(this.value)">
-            </div>
-            <a class="btn btn-light btn-xl" href="#" onclick="displayFilters()">Search</a>
+        <h2>Welcome, <?php echo $firstName . ' ' . $lastName; ?>!</h2>
+            <!-- Filter inputs -->
+            <form id="filterForm" method="GET">
+                <div class="mb-4">
+                    <label for="priceFilter" class="form-label" style="margin-bottom: 10px; margin-right: 50px; color: white;">Price Range:</label>
+                    <input type="number" class="form-control" name="price" placeholder="Price" id="priceValue" value="<?php echo isset($_GET['price']) ? $_GET['price'] : ''; ?>" style="width: 200px; display: inline-block;" min="0" max="100000" step="100">
+                </div>
+                <div class="mb-4">
+                    <label for="capacityFilter" class="form-label" style="margin-bottom: 10px; margin-right: 75px; color: white;">Capacity:</label>
+                    <input type="number" class="form-control" name="capacity" placeholder="Guest Number" id="capacityValue" value="<?php echo isset($_GET['capacity']) ? $_GET['capacity'] : ''; ?>" style="width: 200px; display: inline-block;" min="0" max="30" step="5">
+                </div>
+                <!-- Add more filters as needed -->
+                <div class="mb-4">
+                    <label for="availabilityRange" class="form-label" style="margin-bottom: 50px; color: white;">Availability Range:</label>
+                    <input type="date" class="form-control" name="availability" style="width: 200px; display: inline-block;" id="availabilityRange" value="<?php echo isset($_GET['availability']) ? $_GET['availability'] : ''; ?>">
+                </div>
+                <button type="submit" class="btn btn-light btn-xl">Search</button>
+            </form>
         </div>
     </section>
     
@@ -159,21 +201,25 @@ $total_pages = ceil($total_cards / $cards_per_page);
             <h2>Rent A Boat</h2>
         </div>
         <div id="filtersDisplay" class="mb-4" style="width: 100%; text-align: left;"></div>
-            <div class="container" style="background-color: white; height: auto; display: flex; flex-wrap: wrap; justify-content: space-around; padding: 10px;">
-                <?php echo $cards; ?>
-            </div>
+        <div class="container" style="background-color: white; height: auto; display: flex; flex-wrap: wrap; justify-content: space-around; padding: 10px;">
+            <?php echo $cards; ?>
+
+
+            <!-- <?php echo "SQL Query: " . $query . "<br>"; ?> -->
+        </div>
     </section>
+
     <div class="pagination">
         <?php if ($current_page > 1): ?>
-            <a href="?page=<?php echo $current_page - 1; ?>">&laquo; Previous</a>
+            <a href="?page=<?php echo $current_page - 1; ?>&<?php echo http_build_query($_GET); ?>">&laquo; Previous</a>
         <?php endif; ?>
         
         <?php for ($page = 1; $page <= $total_pages; $page++): ?>
-            <a href="?page=<?php echo $page; ?>" class="<?php if ($page == $current_page) echo 'active'; ?>"><?php echo $page; ?></a>
+            <a href="?page=<?php echo $page; ?>&<?php echo http_build_query($_GET); ?>" class="<?php if ($page == $current_page) echo 'active'; ?>"><?php echo $page; ?></a>
         <?php endfor; ?>
         
         <?php if ($current_page < $total_pages): ?>
-            <a href="?page=<?php echo $current_page + 1; ?>">Next &raquo;</a>
+            <a href="?page=<?php echo $current_page + 1; ?>&<?php echo http_build_query($_GET); ?>">Next &raquo;</a>
         <?php endif; ?>
     </div>
     <section class="footer" style="height: 200px; background-color: gray;">
@@ -181,28 +227,32 @@ $total_pages = ceil($total_cards / $cards_per_page);
     </section>
 
     <script>
-        function updatePriceValue(value) {
-            document.getElementById('priceValue').innerText = value;
-        }
+        // function updatePriceValue(value) {
+        //     document.getElementById('priceValue').innerText = value;
+        // }
 
-        function updateCapacityValue(value) {
-            document.getElementById('capacityValue').innerText = value;
-        }
+        // function updateCapacityValue(value) {
+        //     document.getElementById('capacityValue').innerText = value;
+        // }
 
-        function updateAvailabilityValue(value) {
-            // Handle availability value change
-        }
+        // function updateAvailabilityValue(value) {
+        //     // Handle availability value change
+        // }
 
         function displayFilters() {
             const price = document.getElementById('priceValue').value;
             const capacity = document.getElementById('capacityValue').value;
-            const availability = document.getElementById('availabilityRange').value;
+            const availability = document.getElementById('availabilityRange').value; // Uncomment if using availability filter
 
             const filtersDisplay = document.getElementById('filtersDisplay');
             filtersDisplay.innerHTML = `
-            <p>Rent A Boat Filter: Price: $${price}, Capacity: ${capacity} people, Date: ${availability}</p>
+            <p>Rent A Boat Filter: Price: $${price}, Capacity: ${capacity} people</p>
             `;
         }
+        document.addEventListener("DOMContentLoaded", function() {
+            var today = new Date().toISOString().split('T')[0];
+            document.getElementById("availabilityRange").setAttribute("min", today);
+        });
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>

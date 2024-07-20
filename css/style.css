@@ -10906,7 +10906,7 @@ hr.divider-light {
     color: #212529 ; 
   }
   #mainNav .navbar-brand:hover {
-    color: #fff;
+    color: orange !important;
   }
   #mainNav .navbar-nav .nav-item .nav-link {
     color: #212529;

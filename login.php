@@ -1,7 +1,63 @@
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<?php
+session_start(); // Start the session at the top of the script
+include_once('includes/connection.php');
 
+$email = '';
+$password = '';
 
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_POST['email']) && isset($_POST['password'])) {
+        $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+        $password = $_POST['password'];
+
+        $sql = "SELECT * FROM account WHERE email = ? LIMIT 1";
+        $stmt = $db->prepare($sql);
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows == 1) {
+            $user = $result->fetch_assoc();
+
+            if (password_verify($password, $user['password'])) {
+                $_SESSION['id'] = $user['id'];
+                $_SESSION['firstName'] = $user['firstName'];
+                $_SESSION['lastName'] = $user['lastName'];
+                $_SESSION['accountType'] = $user['accountType'];
+
+                $redirectUrl = '';
+
+                if ($user['accountType'] == 'admin') {
+                    $redirectUrl = 'adminIndex.php';
+                } elseif ($user['accountType'] == 'tourist') {
+                    $redirectUrl = 'index.php';
+                } else {
+                    $redirectUrl = 'captainIndex.php';
+                }
+
+                header("Location: $redirectUrl");
+                exit(); // Ensure that the script stops executing after redirection
+            } else {
+                showError("Invalid email or password.");
+            }
+        } else {
+            showError("Invalid email or password.");
+        }
+    } else {
+        showError("Please fill in both fields.");
+    }
+}
+
+function showError($message) {
+    echo "<script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Login Failed',
+            text: '$message'
+        });
+    </script>";
+}
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -25,55 +81,57 @@
 <body>
     <div class="container d-flex justify-content-center align-items-center min-vh-100">
         <div class="row border rounded-5 p-3 bg-white shadow box-area">
-            <div class="col-md-6  d-flex justify-content-center align-items-center flex-column left-box"
-            style="background: #9EDDFF;  border-radius: 50px 140px 50px 140px;">
-            <div class="featured-image mb-3">
-                <img src="img\logo.png" class="img-fluid" style="width: 250px;">
+            <div class="col-md-6 d-flex justify-content-center align-items-center flex-column left-box"
+            style="background: #9EDDFF; border-radius: 50px 140px 50px 140px;">
+                <div class="featured-image mb-3">
+                    <img src="img/logo.png" class="img-fluid" style="width: 250px;">
+                </div>
+                <p class="fs-2 spaced-text">BALSA</p>
+                <small class="text-white text-wrap text-center"
+                    style="width: 17rem; font-family: 'Courier New', Courier, monospace;">Lagye ng text ng maporma.</small>
             </div>
-            <p class="fs-2 spaced-text">BALSA
-        </p>
-            <small class="text-white text-wrap text-center"
-                style="width: 17rem; font-family: 'Courier New', Courier, monospace;">Lagye ng text ng maporma.</small>
-        </div>
-        <div class="col-md-6 right-box">
-            <form action="login.php" method="post">
-            <div class="row align-items-center">
-                <div class="header-text mb-4">
-                    <h2 style="text-align: center; font-family: 'Times New Roman', 'Copperplate'; font-weight: 1000; ">Login</h2>
-                </div>
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="text" class="form-control form-control-lg bg-light fs-6"
-                        id="email" name="email" placeholder="Email Address">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" class="form-control form-control-lg bg-light fs-6"
-                        id="password" name="password" placeholder="Password">
-                </div>
-                <div class="input-group mb-5 d-flex justify-content-between">
-                    <div class="form-check">
-                        <input type="checkbox" class="form-chech-input" id="formCheck">
-                        <label for="formCheck" classs="form-check-label text-secondary">
-                            <small>Remember Me</small></label>
+            <div class="col-md-6 right-box">
+                <form action="login.php" method="post">
+                    <div class="row align-items-center">
+                        <div class="header-text mb-4">
+                            <h2 style="text-align: center; font-family: 'Times New Roman', 'Copperplate'; font-weight: 1000;">Login</h2>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="text" class="form-control form-control-lg bg-light fs-6"
+                                id="email" name="email" placeholder="Email Address">
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" class="form-control form-control-lg bg-light fs-6"
+                                id="password" name="password" placeholder="Password">
+                        </div>
+                        <div class="input-group mb-5 d-flex justify-content-between">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="formCheck">
+                                <label for="formCheck" class="form-check-label text-secondary">
+                                    <small>Remember Me</small>
+                                </label>
+                            </div>
+                            <div class="forgot"></div>
+                            <small><a href="">Forgot Password</a></small>
+                        </div>
+                        <div class="input-group mb-3">
+                            <button type="submit" class="btn btn-lg btn-primary w-100 fs-6">Login</button>
+                        </div>
+                        <div class="input-group mb-3">
+                            <button type="button" class="btn btn-lg btn-light w-100 fs-6" onclick="handleGoogleSignIn()">
+                                <img src="img/boat/google.png" style="width:30px" class="me-2">
+                                <small>Sign In with Google</small>
+                            </button>
+                        </div>
+                        <div class="row">
+                            <small class="sign" style="text-align: center;">Don't have an account?<a href="signup.php">Sign Up</a></small>
+                        </div>
                     </div>
-                    <div class="forgot"></div>
-                        <small><a href="">Forgot Password</a></small>
-                    </div>
-                </div>
-                <div class="input-group mb-3">
-                    <button type="submit" class="btn btn-lg btn-primary w-100 fs-6"><a href="index.php"></a>Login</button>
-                </div>
-                <div class="input-group mb-3">
-                    <button  type="button" class="btn btn-lg btn-light w-100 fs-6" onclick="handleGoogleSignIn()"><img src="img\boat\google.png" style="width:30px"
-                    class="me-2"><small>Sign In with Google</small></button>
-                </div>
-                <div class="row">
-                    <small class="sign" style="text-align: center;">Don't have an account?<a href="signup.php">Sign Up</a></small>
-                </div>
+                </form>
             </div>
         </div>
-    </div>
     </div>
 
     <script>
@@ -83,86 +141,3 @@
     </script>
 </body>
 </html>
-
-<?php
-include_once('includes/connection.php');
-
-$email = '';
-$password = '';
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST['email']) && isset($_POST['password'])) {
-        $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
-        $password = $_POST['password'];
-
-        $sql = "SELECT * FROM account WHERE email = ? LIMIT 1";
-        $stmt = $db->prepare($sql); 
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($result->num_rows == 1) {
-            $user = $result->fetch_assoc();
-
-            if (password_verify($password, $user['password'])) {
-                session_start();
-                $_SESSION['id'] = $user['id'];
-                $_SESSION['name'] = $user['firstName'];
-
-                if ($user['accountType'] == 'admin') {
-                    echo "<script>
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Login Successful',
-                            text: 'Redirecting to admin dashboard...',
-                            timer: 2000,
-                            showConfirmButton: false
-                        }).then(() => {
-                            window.location.href = 'adminIndex.php';
-                        });
-                    </script>";
-                } else {
-                    echo "<script>
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Login Successful',
-                            text: 'Redirecting to home page...',
-                            timer: 2000,
-                            showConfirmButton: false
-                        }).then(() => {
-                            window.location.href = 'index.php';
-                        });
-                    </script>";
-                }
-            } else {
-                echo "<script>
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Login Failed',
-                        text: 'Invalid email or password.'
-                    });
-                </script>";
-            }
-        } else {
-            echo "<script>
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Login Failed',
-                    text: 'Invalid email or password.'
-                });
-            </script>";
-        }
-    } else {
-        echo "<script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Login Failed',
-                text: 'Please fill in both fields.'
-            });
-        </script>";
-    }
-}
-?>
-
-
-

@@ -66,7 +66,7 @@
                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
                         <a class="dropdown-item" href="profile.php">View Profile</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="login.php">Logout</a>
+                        <a class="dropdown-item" href="logout.php">Logout</a>
                     </div>
                 </div>
             </div>

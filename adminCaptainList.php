@@ -3,7 +3,8 @@ include_once('includes\connection.php');
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['action']) && $_POST['action'] === 'saveCaptain') {
-        $capName = isset($_POST['forCaptainName']) ? mysqli_real_escape_string($db, $_POST['forCaptainName']) : '';
+        $capFName = isset($_POST['forCaptainFName']) ? mysqli_real_escape_string($db, $_POST['forCaptainFName']) : '';
+        $capLName = isset($_POST['forCaptainLName']) ? mysqli_real_escape_string($db, $_POST['forCaptainLName']) : '';
         $profile = isset($_FILES['forProfile']) ? $_FILES['forProfile'] : [];
         $licenseNum = isset($_POST['forLicenseNumber']) ? mysqli_real_escape_string($db, $_POST['forLicenseNumber']) : '';
         $boatName = isset($_POST['forBoatName']) ? mysqli_real_escape_string($db, $_POST['forBoatName']) : '';
@@ -14,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $crewMem = isset($_POST['forCrew']) ? $_POST['forCrew'] : [];
         $req = isset($_FILES['forRequirements']) ? $_FILES['forRequirements'] : [];
 
-        if (empty($capName) || empty($licenseNum) || empty($req) || empty($boatPrice)) {
+        if (empty($capFName) || empty($capLName) || empty($licenseNum) || empty($req) || empty($boatPrice)) {
             echo "Error: All fields are required.";
         } else {
             $errors = [];
@@ -108,18 +109,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $reqJson = mysqli_real_escape_string($db, json_encode($uploadedFiles));
                 $boatImgJson = mysqli_real_escape_string($db, json_encode($boatImgNames));
 
-                $checkQuery = "SELECT * FROM captains WHERE captainName = '$capName' AND licenseID = '$licenseNum'";
+                $checkQuery = "SELECT * FROM captains WHERE licenseID = '$licenseNum'";
                 $checkResult = mysqli_query($db, $checkQuery);
 
                 if (mysqli_num_rows($checkResult) > 0) {
-                    echo "<script>alert('Captain \"$capName\" already exists!');</script>";
+                    echo "<script>alert('Captain \"$licenseNum\" already exists!');</script>";
                 } else {
-                    $query = "INSERT INTO captains (captainName, profilePic, licenseID, boatName, boat, boatDescription, boatPrice, capacity, crewMembers, requirements) 
-                        VALUES ('$capName', '$profileImgName', '$licenseNum', '$boatName', '$boatImgJson', '$boatDesc', '$boatPrice', $boatCapacity, '$crewMemJson', '$reqJson')";
+                    $query = "INSERT INTO captains (captainFirstName,captainLastName, profilePic, licenseID, boatName, boat, boatDescription, boatPrice, capacity, crewMembers, requirements) 
+                        VALUES ('$capFName', '$capLName', '$profileImgName', '$licenseNum', '$boatName', '$boatImgJson', '$boatDesc', '$boatPrice', $boatCapacity, '$crewMemJson', '$reqJson')";
                     $result = mysqli_query($db, $query);
 
                     if ($result) {
-                        echo "<script>alert('Captain added successfully!');</script>";
+                        $email = $licenseNum;
+                        $hashedPassword = password_hash($licenseNum, PASSWORD_DEFAULT); // Hashing the password
+                        $accountType = 'captain';
+
+                        $adminQuery = "INSERT INTO account (firstName, lastName, email, password, accountType, licenseNumber) 
+                                    VALUES ('$capFName', '$capLName', '$email', '$hashedPassword', '$accountType', '$licenseNum')";
+                        $adminResult = mysqli_query($db, $adminQuery);
+
+                        if ($adminResult) {
+                            echo "<script>alert('Captain added successfully!');</script>";
+                        } else {
+                            echo "Error adding captain to admin table: " . mysqli_error($db);
+                        }
                     } else {
                         echo "Error: " . mysqli_error($db);
                     }
@@ -141,7 +154,8 @@ $rows = '';
 if (mysqli_num_rows($result) > 0) {
     while ($row = mysqli_fetch_assoc($result)) {
         $rows .= '<tr>';
-        $rows .= '<td>' . htmlspecialchars($row['captainName']) . '</td>';
+        $rows .= '<td>' . htmlspecialchars($row['captainFirstName'] . ' ' . $row['captainLastName']) . '</td>';
+
 
         if (!empty($row['profilePic'])) { 
             $profileImagePath = 'uploads/' . $row['profilePic'];
@@ -485,8 +499,12 @@ if (mysqli_num_rows($result) > 0) {
                 <h2 style="padding-bottom: 20px;">Add Captain</h2>
                 <form id="addCaptainForm" method="POST" enctype="multipart/form-data">
                     <div>
-                        <label for="captainName">Captain Name:</label>
-                        <input type="text" style="margin-left: 40px;" id="captainName" class="inputTypes" name="forCaptainName" required>
+                        <label for="captainFName">First Name:</label>
+                        <input type="text" style="margin-left: 20px;" id="captainFName" class="inputTypes" name="forCaptainFName" required>
+                    </div>
+                    <div>
+                        <label for="captainLName">Last Name:</label>
+                        <input type="text" style="margin-left: 20px;" id="captainLName" class="inputTypes" name="forCaptainLName" required>
                     </div>
                     <div>
                         <label for="profile">Upload Profile:</label>
@@ -586,9 +604,11 @@ if (mysqli_num_rows($result) > 0) {
 
         function validateForm() {
             
-            var captainName = $("#captainName").val();
-            if (!captainName) {
-                alert("Captain Name is required.");
+            var captainFName = $("#captainFName").val();
+            var captainLName = $("#captainLName").val();
+
+            if (!captainFName || !captainLName) {
+                alert("Both First Name and Last Name of the Captain are required.");
                 return false;
             }
             

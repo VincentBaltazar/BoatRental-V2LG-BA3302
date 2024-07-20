@@ -13,7 +13,7 @@ if (isset($_GET['licenseID'])) {
         if (!empty($boatImages)) {
             $boatImage = 'uploads/' . htmlspecialchars($boatImages[0]); 
         }
-        $capName = htmlspecialchars($row['captainName']);
+        $capName = htmlspecialchars($row['captainFirstName'] . ' ' . $row['captainLastName']);
         $profilePic = 'path/to/default/image.jpg'; 
         if (!empty($row['profilePic'])) {
             $profilePic = 'uploads/' . htmlspecialchars($row['profilePic']); 
@@ -81,7 +81,7 @@ if (isset($_GET['licenseID'])) {
             padding: 20px;
             overflow: auto;
             z-index: 100; 
-            box-shadow: 0px 3px 40px #000;
+            box-shadow: 2px 2px 20px 4px rgba(32, 38, 38, .18);
         }
 
         .flex-container {
@@ -93,7 +93,7 @@ if (isset($_GET['licenseID'])) {
         .captainName {
             margin-left: 10px;
             margin-top: 10px;
-            font-size: 40px;
+            font-size: 25px;
             font-weight: bold;
         }
 
@@ -112,10 +112,10 @@ if (isset($_GET['licenseID'])) {
             flex-wrap: wrap;
             width: 100%;
             background-color: white;
-            margin-top: 150px;
+            margin-top: 50px;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
         }
         .feedback-header {
             display: flex;
@@ -151,14 +151,39 @@ if (isset($_GET['licenseID'])) {
             color: #555;
         }
         .boat-name {
-            width: 98%;
+            width: 95.4%;
             border-bottom: 2px solid black;
             padding-bottom: 10px;
             margin-bottom: 20px;
-            MARGIN-LEFT: 20px;
+            margin-left: 20px;
             text-align: left;
             padding-left: 20px;
-            border-bottom: 2px solid black;
+        }
+        .boat-inc {
+            display: flex;
+            width: 95.4%;
+            padding-top: 30px;
+            border-top: 2px solid black;
+            margin-top: 100px;
+            margin-left: 20px;
+            padding-left: 20px;
+            margin-right: 20px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .inclusion-list {
+            display: flex;
+            flex-wrap: wrap;
+            list-style-type: none;
+            margin: 20px;
+            padding: 0;
+            font-size: 16px;
+        }
+
+        .inclusion-list li {
+            flex: 0 0 50%; 
+            margin-bottom: 5px;
         }
         @media (max-width: 768px) {
             .feedback-card {
@@ -183,9 +208,9 @@ if (isset($_GET['licenseID'])) {
         <div class="details">
             <img src="<?php echo $boatImage; ?>" alt="Boat Image" class="boat-image">
         </div>
-        <div class="boatDet">
+        <div class="boatDet" style="width: 65%">
             <h2 class="boat-name"><?php echo $boatName; ?></h2>
-            <p class="desc" style="margin-left: 40px; font-size: 30px; margin-top: 5px;"><?php echo $boatDescription; ?></p>    
+            <p class="desc" style="margin-left: 40px; font-size: 20px; margin-top: 5px;"><?php echo $boatDescription; ?></p>    
             <div class="ratingsFeed">
                 <div class="flex-container">
                     <img src="<?php echo $profilePic; ?>" alt="Profile Image" class="profile-image">
@@ -194,31 +219,39 @@ if (isset($_GET['licenseID'])) {
                 <p class="price">Price: $<?php echo $boatPrice; ?> per hour</p>
                 <p class="capacity">Capacity: <?php echo $capacity; ?> people</p>
                 <p class="crew-members">Crew Members: <?php echo $crewMembers; ?></p>
-                <button class="rent">Rent This Boat</button>
+                <!-- Rent Button -->
+                <a href="rent.php?licenseID=<?php echo $licenseID; ?>&boatName=<?php echo urlencode($boatName); ?>&boatPrice=<?php echo $boatPrice; ?>" class="rent">Rent This Boat</a>
             </div>
+                <h6 class="boat-inc">Boat Includes</h6>
+                <ul class="inclusion-list">
+                    <li>Safety Vest</li>
+                    <li>GPS</li>
+                    <li>Fishing Gear</li>
+                    <li>First Aid Kit</li>
+                    <li>Life Raft</li>
+                    <li>Snorkeling Equipment</li>
+                    <li>Anchor</li>
+                    <li>Radio</li>
+                </ul>
+            
             <div class="feedback-container">
                 <div class="feedback-header">
                     <h4>Ratings and Feedback</h4>
                 </div>
                 <div class="feedback-card">
                     <h5>Tourist Name</h5>
-                    <div class="stars">★★★★★</div>
-                    <div class="feedback-text">
-                        This is the feedback text provided by the tourist. It gives details about their experience and thoughts.
-                    </div>
+                    <div class="stars">★★★★☆</div>
+                    <p class="feedback-text">The boat was in great condition and the captain was very friendly. Had an amazing time!</p>
                 </div>
                 <div class="feedback-card">
                     <h5>Tourist Name</h5>
-                    <div class="stars">★★★★★</div>
-                    <div class="feedback-text">
-                        This is the feedback text provided by the tourist. It gives details about their experience and thoughts.
-                    </div>
+                    <div class="stars">★★★☆☆</div>
+                    <p class="feedback-text">The trip was good but the weather was not favorable. The captain handled the situation well.</p>
                 </div>
-            </div>  
+            </div>
         </div>
     </div>
-    
-    
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/SimpleLightbox/2.1.0/simpleLightbox.min.js"></script>
     <script src="js/scripts.js"></script>
