@@ -21,31 +21,14 @@
     <i id="btn" class="fa-solid fa-bars"></i>
     <ul class="nav-links">
         <li>
-            <a href="adminIndex.php" onclick="showSection('home', this)">
+            <a href="captainIndex.php" onclick="showSection('home', this)">
                 <i class="fa-solid fa-house"></i>
-                <span>Dashboard</span>
+                <span>My Boat</span>
             </a>
         </li>
+        
         <li>
-            <a href="adminCaptainList.php" onclick="showSection('homew', this)">
-                <i class="fa-solid fa-user"></i>
-                <span>Captains</span>
-            </a>
-        </li>
-        <li>
-            <a href="mapping.php" onclick="showSection('hd', this)">
-                <i class="fa-solid fa-ship"></i>
-                <span>Mapping</span>
-            </a>
-        </li>
-        <li>
-            <a href="#hd" onclick="showSection('hd', this)">
-                <i class="fa-solid fa-ship"></i>
-                <span>Boat</span>
-            </a>
-        </li>
-        <li>
-            <a href="logout.php" style="margin-top: 280px;">
+            <a href="logout.php" style="margin-top: 500px;">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 <span>Logout</span>
             </a>

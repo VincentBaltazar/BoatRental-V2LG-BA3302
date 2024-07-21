@@ -1,4 +1,7 @@
 <?php
+include_once('includes/auth.php');
+checkAuthentication();
+
 include_once('includes/connection.php');
 
 $query = "SELECT SUM(JSON_LENGTH(crewMembers)) AS total_crew_members FROM captains";
@@ -51,6 +54,11 @@ if ($result && $result->num_rows > 0) {
             background-color: white;
             border-radius: 15px;
         }
+        .bx {
+            color: black;
+            font-size: 40px;
+            margin-right: 50px;
+        }
     </style>
 </head>
 <body>
@@ -60,7 +68,9 @@ if ($result && $result->num_rows > 0) {
             <div class="section-header">
                 DASHBOARD
                 <div class="user">
-                    <i class='bx bx-user-circle'></i>
+                    <a href="adminProfile.php">
+                        <i class='bx bx-user-circle'></i>
+                    </a>
                 </div>
             </div>
             <div class="grid-container">
@@ -96,6 +106,7 @@ if ($result && $result->num_rows > 0) {
             });
             element.classList.add('active');
         }
+       
     </script>
     <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
 </body>

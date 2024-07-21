@@ -4,58 +4,53 @@ include_once('includes/connection.php');
 
 $email = '';
 $password = '';
+$errorMessage = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['email']) && isset($_POST['password'])) {
         $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
         $password = $_POST['password'];
 
-        $sql = "SELECT * FROM account WHERE email = ? LIMIT 1";
-        $stmt = $db->prepare($sql);
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($result->num_rows == 1) {
-            $user = $result->fetch_assoc();
-
-            if (password_verify($password, $user['password'])) {
-                $_SESSION['id'] = $user['id'];
-                $_SESSION['firstName'] = $user['firstName'];
-                $_SESSION['lastName'] = $user['lastName'];
-                $_SESSION['accountType'] = $user['accountType'];
-
-                $redirectUrl = '';
-
-                if ($user['accountType'] == 'admin') {
-                    $redirectUrl = 'adminIndex.php';
-                } elseif ($user['accountType'] == 'tourist') {
-                    $redirectUrl = 'index.php';
-                } else {
-                    $redirectUrl = 'captainIndex.php';
-                }
-
-                header("Location: $redirectUrl");
-                exit(); // Ensure that the script stops executing after redirection
-            } else {
-                showError("Invalid email or password.");
-            }
+        if (empty($email) || empty($password)) {
+            $errorMessage = "Please fill in both fields.";
         } else {
-            showError("Invalid email or password.");
+            $sql = "SELECT * FROM account WHERE email = ? LIMIT 1";
+            $stmt = $db->prepare($sql);
+            $stmt->bind_param("s", $email);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            if ($result->num_rows == 1) {
+                $user = $result->fetch_assoc();
+
+                if (password_verify($password, $user['password'])) {
+                    $_SESSION['logged_in'] = true;
+                    $_SESSION['id'] = $user['id'];
+                    $_SESSION['firstName'] = $user['firstName'];
+                    $_SESSION['lastName'] = $user['lastName'];
+                    $_SESSION['accountType'] = $user['accountType'];
+
+                    $redirectUrl = '';
+
+                    if ($user['accountType'] == 'admin') {
+                        $redirectUrl = 'adminIndex.php';
+                    } elseif ($user['accountType'] == 'tourist') {
+                        $redirectUrl = 'index.php';
+                    } else {
+                        $redirectUrl = 'captainIndex.php';
+                    }
+                    header("Location: $redirectUrl");
+                    exit();
+                } else {
+                    $errorMessage = "Invalid email or password.";
+                }
+            } else {
+                $errorMessage = "Invalid email or password.";
+            }
         }
     } else {
-        showError("Please fill in both fields.");
+        $errorMessage = "Please fill in both fields.";
     }
-}
-
-function showError($message) {
-    echo "<script>
-        Swal.fire({
-            icon: 'error',
-            title: 'Login Failed',
-            text: '$message'
-        });
-    </script>";
 }
 ?>
 
@@ -138,6 +133,14 @@ function showError($message) {
     function handleGoogleSignIn() {
         window.location.href = 'http://localhost:3000/auth/google'; 
     }
+
+    <?php if (!empty($errorMessage)) : ?>
+        Swal.fire({
+            icon: 'error',
+            title: 'Login Failed',
+            text: '<?php echo $errorMessage; ?>'
+        });
+    <?php endif; ?>
     </script>
 </body>
 </html>

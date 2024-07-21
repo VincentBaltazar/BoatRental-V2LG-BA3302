@@ -1,29 +1,57 @@
 <?php
 include_once('includes/connection.php');
+include_once('includes/auth.php');
+checkAuthentication();
 
-if (isset($_GET['licenseID']) && isset($_GET['boatName']) && isset($_GET['boatPrice'])) {
+$firstName = isset($_SESSION['firstName']) ? $_SESSION['firstName'] : 'Guest';
+$email = isset($_SESSION['email']) ? $_SESSION['email'] : '';
+
+if (isset($_GET['licenseID'], $_GET['boatName'], $_GET['boatPrice'], $_GET['capacity'])) {
     $licenseID = mysqli_real_escape_string($db, $_GET['licenseID']);
     $boatName = urldecode(mysqli_real_escape_string($db, $_GET['boatName']));
     $boatPrice = mysqli_real_escape_string($db, $_GET['boatPrice']);
+    $capacity = is_numeric($_GET['capacity']) ? mysqli_real_escape_string($db, $_GET['capacity']) : 0; // Assuming capacity is numeric
 } else {
     echo "<p>Invalid request.</p>";
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $renterName = mysqli_real_escape_string($db, $_POST['renterName']);
-    $renterEmail = mysqli_real_escape_string($db, $_POST['renterEmail']);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $renterName = mysqli_real_escape_string($db, $firstName); 
+    $renterNum = mysqli_real_escape_string($db, $_POST['renterNum']);
     $rentalDate = mysqli_real_escape_string($db, $_POST['rentalDate']);
-    $rentalDuration = mysqli_real_escape_string($db, $_POST['rentalDuration']);
+    $arrivalTime = mysqli_real_escape_string($db, $_POST['arrivalTime']); 
+    $numberOfPax = mysqli_real_escape_string($db, $_POST['numberOfPax']);
+    $email = mysqli_real_escape_string($db, $email);
 
-    $query = "INSERT INTO rentals (licenseID, boatName, renterName, renterEmail, rentalDate, rentalDuration, totalPrice) VALUES ('$licenseID', '$boatName', '$renterName', '$renterEmail', '$rentalDate', '$rentalDuration', '$boatPrice' * '$rentalDuration')";
-    if (mysqli_query($db, $query)) {
-        echo "<p>Rental successful!</p>";
-    } else {
-        echo "<p>Error: " . mysqli_error($db) . "</p>";
-    }
+    $rentalDuration = 1;
+    $totalPrice = $boatPrice * $rentalDuration;
+
+    echo "<p>Query Values:</p>";
+        echo "<ul>";
+        echo "<li>License ID: $licenseID</li>";
+        echo "<li>Boat Name: $boatName</li>";
+        echo "<li>Renter Name: $renterName</li>";
+        echo "<li>Renter Email: $email</li>";
+        echo "<li>Renter Number: $renterNum</li>";
+        echo "<li>Rental Date: $rentalDate</li>";
+        echo "<li>Arrival Time: $arrivalTime</li>";
+        echo "<li>Number of Pax: $numberOfPax</li>";
+        echo "<li>Total Price: $totalPrice</li>";
+        echo "</ul>";
+
+    // $query = "INSERT INTO rentals (licenseID, boatName, renterName, renterEmail, renterNum, rentalDate, arrivalTime, numberOfPax, totalPrice) 
+    //           VALUES ('$licenseID', '$boatName', '$renterName', '$email', '$renterNum', '$rentalDate', '$arrivalTime', '$numberOfPax', '$totalPrice')";
+
+    // if (mysqli_query($db, $query)) {
+    //     echo "<p>Rental successful!</p>";
+    // } else {
+    //     echo "<p>Error: " . mysqli_error($db) . "</p>";
+        
+    // }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -46,22 +74,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="container mt-5">
         <h2 style="padding-top: 60px;">Rent Boat: <?php echo htmlspecialchars($boatName); ?></h2>
         <p>Price per hour: $<?php echo htmlspecialchars($boatPrice); ?></p>
+        <p>Capacity: <?php echo htmlspecialchars($capacity); ?></p>
         <form method="post">
             <div class="mb-3">
                 <label for="renterName" class="form-label">Your Name</label>
-                <input type="text" class="form-control" id="renterName" name="renterName" required>
+                <input type="text" class="form-control" id="renterName" name="renterName" value="<?php echo htmlspecialchars($firstName); ?>" disabled>
             </div>
             <div class="mb-3">
-                <label for="renterEmail" class="form-label">Your Email</label>
-                <input type="email" class="form-control" id="renterEmail" name="renterEmail" required>
+                <label for="renterNum" class="form-label">Your Number</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                    <select class="custom-select" style="height: 40px; width: 55px; border: 1px solid gray; border-radius: 5px; margin-right: 5px;" id="countryCode" name="countryCode">
+                            <option value="+63">+63 Philippines</option>
+                        </select>
+                    </div>
+                    <input type="tel" class="form-control" style="border-radius: 5px;" id="renterNum" name="renterNum" pattern="[0-9]{7,11}" maxlength="11" required>
+                    <div class="invalid-feedback">
+                        Please enter a valid phone number (7 to 11 digits).
+                    </div>
+                </div>
             </div>
             <div class="mb-3">
                 <label for="rentalDate" class="form-label">Rental Date</label>
                 <input type="date" class="form-control" id="rentalDate" name="rentalDate" required>
             </div>
             <div class="mb-3">
-                <label for="rentalDuration" class="form-label">Rental Duration (hours)</label>
-                <input type="number" class="form-control" id="rentalDuration" name="rentalDuration" min="1" required>
+                <label for="arrivalTime" class="form-label">Arrival Time</label>
+                <input type="time" class="form-control" id="arrivalTime" name="arrivalTime" required>
+            </div>
+            <div class="mb-3">
+                <label for="numberOfPax" class="form-label">Number of Pax</label>
+                <input type="number" class="form-control" id="numberOfPax" name="numberOfPax" min="10" max="<?php $capacity ?>" required>
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>

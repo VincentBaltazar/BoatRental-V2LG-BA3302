@@ -1,6 +1,8 @@
 <?php
-session_start();
 include_once('includes/connection.php');
+include_once('includes/auth.php');
+checkAuthentication();
+
 
 
 $firstName = isset($_SESSION['firstName']) ? $_SESSION['firstName'] : 'Guest';
@@ -104,7 +106,7 @@ $total_pages = ceil($total_cards / $cards_per_page);
         .card {
             border: 1px solid #ccc;
             border-radius: 10px;
-            width: 300px;
+            width: 350px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             margin: 20px;
             font-family: Arial, sans-serif;
@@ -242,7 +244,7 @@ $total_pages = ceil($total_cards / $cards_per_page);
         function displayFilters() {
             const price = document.getElementById('priceValue').value;
             const capacity = document.getElementById('capacityValue').value;
-            const availability = document.getElementById('availabilityRange').value; // Uncomment if using availability filter
+            const availability = document.getElementById('availabilityRange').value; 
 
             const filtersDisplay = document.getElementById('filtersDisplay');
             filtersDisplay.innerHTML = `

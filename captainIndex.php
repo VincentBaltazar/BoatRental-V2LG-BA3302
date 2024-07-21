@@ -18,7 +18,7 @@ include_once('includes/connection.php');
     </style>
 </head>
 <body>
-    <?php include_once('includes/adminNavbar.php'); ?>
+    <?php include_once('includes\captainNavbar.php'); ?>
     <section class="section" id="home">
         <section class="dashboard section-container">
             <div class="section-header">

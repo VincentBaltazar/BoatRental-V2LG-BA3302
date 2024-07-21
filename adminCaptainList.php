@@ -385,6 +385,11 @@ if (mysqli_num_rows($result) > 0) {
             max-width: 100px;
             margin: 10px;
         }
+        .bx {
+            color: black;
+            font-size: 40px;
+            margin-right: 50px;
+        }
 
         @media (max-width: 800px) {
             .dashboard .section-header {
@@ -467,7 +472,9 @@ if (mysqli_num_rows($result) > 0) {
             <div class="section-header">
                 CAPTAINS
                 <div class="user">
-                    <i class='bx bx-user-circle'></i>
+                    <a href="adminProfile.php">
+                        <i class='bx bx-user-circle'></i>
+                    </a>
                 </div>
             </div>
             <button class="btn btn-warning" id="addButton" style="float: right; margin-right: 10px; margin-bottom: 10px; width: 250px;">Add</button>

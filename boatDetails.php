@@ -8,11 +8,11 @@ if (isset($_GET['licenseID'])) {
 
     if (mysqli_num_rows($result) == 1) {
         $row = mysqli_fetch_assoc($result);
-        $boatImages = json_decode($row['boat']);
-        $boatImage = 'path/to/default/image.jpg'; 
-        if (!empty($boatImages)) {
-            $boatImage = 'uploads/' . htmlspecialchars($boatImages[0]); 
-        }
+        $boatImages = json_decode($row['boat'], true);
+        // $boatImage = 'path/to/default/image.jpg'; 
+        // if (!empty($boatImages)) {
+        //     $boatImage = 'uploads/' . htmlspecialchars($boatImages[0]); 
+        // }
         $capName = htmlspecialchars($row['captainFirstName'] . ' ' . $row['captainLastName']);
         $profilePic = 'path/to/default/image.jpg'; 
         if (!empty($row['profilePic'])) {
@@ -22,7 +22,7 @@ if (isset($_GET['licenseID'])) {
         $boatDescription = htmlspecialchars($row['boatDescription']);
         $boatPrice = htmlspecialchars($row['boatPrice']);
         $capacity = htmlspecialchars($row['capacity']);
-        $crewMembers = htmlspecialchars($row['crewMembers']);
+        $crewMembers = json_decode($row['crewMembers']);
     } else {
         echo "<p>Boat not found.</p>";
         exit;
@@ -52,12 +52,16 @@ if (isset($_GET['licenseID'])) {
             align-items: center;
         }
         .details {
-            text-align: center;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+            
         }
         .details img {
             border-radius: 10px;
             width: 100%;
             height: 450px;
+            object-fit: cover; 
         }
         .boatDet {
             position: relative; 
@@ -103,9 +107,28 @@ if (isset($_GET['licenseID'])) {
             height: 50px;
         }
 
-        .price, .capacity, .crew-members {
+        /* .price, .capacity, .crew-members {
+            float: left;
             margin: 5px 0;
+            clear: left;
+        } */
+        .price, .capacity, .crew-members {
+            float: left;
+            margin: 5px 0;
+            clear: left;
+            margin-bottom: 10px; 
         }
+
+        .price span, .capacity span, .crew-members span {
+            display: inline-block;
+            width: 200px; 
+            margin-left: 20px;
+        }
+
+        .crew-members span {
+            width: auto; 
+        }
+
 
         .feedback-container {
             display: flex;
@@ -115,7 +138,7 @@ if (isset($_GET['licenseID'])) {
             margin-top: 50px;
             padding: 20px;
             border-radius: 10px;
-            /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
+           
         }
         .feedback-header {
             display: flex;
@@ -192,12 +215,62 @@ if (isset($_GET['licenseID'])) {
             }
         }
         .rent{
-            height: 40px;
-            width: 150px;
-            margin-top: 20px;
+            height: 50px;
+            width: 300px;
+            margin-top: 10px;
             border-radius: 10px;
             background-color: orange;
         }
+        .image-viewer {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .image-viewer img {
+            width: 500px;
+            max-height: 80vh;
+            border-radius: 10px;
+        }
+
+        .viewer-close {
+            color: #ffffff;
+            font-size: 40px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 25px;
+            cursor: pointer;
+        }
+
+        .viewer-prev, .viewer-next {
+            color: white;
+            font-size: 50px;
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            text-decoration: none;
+        }
+
+        .viewer-prev {
+            left: 10px;
+        }
+
+        .viewer-next {
+            right: 10px;
+        }
+
+
         
 
     </style>
@@ -206,8 +279,19 @@ if (isset($_GET['licenseID'])) {
     <?php include_once("includes/navbar.php") ?>
     <div class="container1">
         <div class="details">
-            <img src="<?php echo $boatImage; ?>" alt="Boat Image" class="boat-image">
+            <?php foreach ($boatImages as $index => $image): ?>
+                <div class="image-wrapper">
+                    <img src="<?php echo 'uploads/' . htmlspecialchars($image); ?>" alt="Boat Image" class="boat-image" onclick="openImageViewer(<?php echo $index; ?>)">
+                </div>
+            <?php endforeach; ?>
         </div>
+        <div id="imageViewer" class="image-viewer">
+            <span class="viewer-close" onclick="closeImageViewer()">&times;</span>
+            <img id="viewerImage" src="" alt="Boat Image">
+            <a class="viewer-prev" onclick="navigateImages(-1)">&#10094;</a>
+            <a class="viewer-next" onclick="navigateImages(1)">&#10095;</a>
+        </div>
+
         <div class="boatDet" style="width: 65%">
             <h2 class="boat-name"><?php echo $boatName; ?></h2>
             <p class="desc" style="margin-left: 40px; font-size: 20px; margin-top: 5px;"><?php echo $boatDescription; ?></p>    
@@ -216,11 +300,18 @@ if (isset($_GET['licenseID'])) {
                     <img src="<?php echo $profilePic; ?>" alt="Profile Image" class="profile-image">
                     <p class="captainName"><?php echo $capName; ?></p>
                 </div>
-                <p class="price">Price: $<?php echo $boatPrice; ?> per hour</p>
-                <p class="capacity">Capacity: <?php echo $capacity; ?> people</p>
-                <p class="crew-members">Crew Members: <?php echo $crewMembers; ?></p>
+    
+                <p class="price"><strong>Price:</strong><span>$<?php echo $boatPrice; ?>per hour</span></p>
+                <p class="capacity"><strong>Capacity:</strong><span><?php echo $capacity; ?>people</span> </p>
+                <p class="crew-members"><strong>Crew Members:</strong>
+                    <?php foreach ($crewMembers as $member): ?>
+                        <span><?php echo $member; ?></span>, 
+                    <?php endforeach; ?>
+                </p>
+
                 <!-- Rent Button -->
-                <a href="rent.php?licenseID=<?php echo $licenseID; ?>&boatName=<?php echo urlencode($boatName); ?>&boatPrice=<?php echo $boatPrice; ?>" class="rent">Rent This Boat</a>
+                <button type="button" onclick="location.href='rent.php?licenseID=<?php echo $licenseID; ?>&boatName=<?php echo urlencode($boatName); ?>&boatPrice=<?php echo $boatPrice; ?>&capacity=<?php echo urlencode($capacity); ?>&capacity=<?php echo $capacity; ?>'" class="rent">Rent This Boat</button>
+                
             </div>
                 <h6 class="boat-inc">Boat Includes</h6>
                 <ul class="inclusion-list">
@@ -256,5 +347,38 @@ if (isset($_GET['licenseID'])) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/SimpleLightbox/2.1.0/simpleLightbox.min.js"></script>
     <script src="js/scripts.js"></script>
     <script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/SimpleLightbox/2.1.0/simpleLightbox.min.js"></script>
+
+    <script>
+        function openImageViewer(index) {
+            const imageViewer = document.getElementById('imageViewer');
+            const viewerImage = document.getElementById('viewerImage');
+            viewerImage.src = document.querySelectorAll('.boat-image')[index].src;
+            imageViewer.style.display = 'block';
+        }
+
+        function closeImageViewer() {
+            document.getElementById('imageViewer').style.display = 'none';
+        }
+
+        function navigateImages(direction) {
+            const images = document.querySelectorAll('.boat-image');
+            const viewerImage = document.getElementById('viewerImage');
+            let currentIndex = Array.from(images).findIndex(img => img.src === viewerImage.src);
+            let newIndex = currentIndex + direction;
+
+            if (newIndex < 0) {
+                newIndex = images.length - 1;
+            } else if (newIndex >= images.length) {
+                newIndex = 0;
+            }
+
+            viewerImage.src = images[newIndex].src;
+        }
+
+        </script>
+
+
+
 </body>
 </html>
