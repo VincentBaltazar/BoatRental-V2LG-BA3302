@@ -1,5 +1,5 @@
 <?php
-include_once('includes\connection.php');   
+include_once('includes/connection.php');   
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['action']) && $_POST['action'] === 'saveCaptain') {
@@ -15,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $crewMem = isset($_POST['forCrew']) ? $_POST['forCrew'] : [];
         $req = isset($_FILES['forRequirements']) ? $_FILES['forRequirements'] : [];
 
-        if (empty($capFName) || empty($capLName) || empty($licenseNum) || empty($req) || empty($boatPrice)) {
+        if (empty($capFName) || empty($capLName) || empty($licenseNum) || empty($boatPrice) || empty($req)) {
             echo "Error: All fields are required.";
         } else {
             $errors = [];
@@ -23,6 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $boatImgNames = [];
             $profileImgName = '';
 
+            // Handle profile image upload
             if (!empty($profile['name'])) {
                 $profileImgName = $profile['name'];
                 $profileImgTmpName = $profile['tmp_name'];
@@ -35,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     if (in_array($profileImgExLc, $allowedExs)) {
                         $newProfileImgName = uniqid("PROFILE-", true) . '.' . $profileImgExLc;
-                        $profileImgPath = 'C:/xampp/htdocs/BoatRental-V2LG-BA3302/uploads/' . $newProfileImgName;
+                        $profileImgPath = 'uploads/' . $newProfileImgName;
 
                         if (move_uploaded_file($profileImgTmpName, $profileImgPath)) {
                             $profileImgName = $newProfileImgName;
@@ -50,6 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
             }
 
+            // Handle boat images upload
             if (!empty($boat['name'][0])) {
                 foreach ($boat['tmp_name'] as $key => $tmpName) {
                     $boatImgName = $boat['name'][$key];
@@ -62,7 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                         if (in_array($boatImgExLc, $allowedExs)) {
                             $newBoatImgName = uniqid("BOAT-", true) . '.' . $boatImgExLc;
-                            $boatImgPath = 'C:/xampp/htdocs/BoatRental-V2LG-BA3302/uploads/' . $newBoatImgName;
+                            $boatImgPath = 'uploads/' . $newBoatImgName;
 
                             if (move_uploaded_file($tmpName, $boatImgPath)) {
                                 $boatImgNames[] = $newBoatImgName; 
@@ -77,6 +79,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     }
                 }
             }
+
+            // Handle requirement files upload
             if (!empty($req['name'][0])) {
                 foreach ($req['tmp_name'] as $key => $tmpName) {
                     $imageName = $req['name'][$key];
@@ -89,7 +93,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                         if (in_array($imageExLc, $allowedExs)) {
                             $newImgName = uniqid("REQ-", true) . '.' . $imageExLc;
-                            $imagePath = 'C:/xampp/htdocs/BoatRental-V2LG-BA3302/uploads/' . $newImgName;
+                            $imagePath = 'uploads/' . $newImgName;
 
                             if (move_uploaded_file($tmpName, $imagePath)) {
                                 $uploadedFiles[] = $newImgName;
@@ -104,6 +108,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     }
                 }
             }
+
             if (empty($errors)) {
                 $crewMemJson = mysqli_real_escape_string($db, json_encode($crewMem));
                 $reqJson = mysqli_real_escape_string($db, json_encode($uploadedFiles));
@@ -115,8 +120,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 if (mysqli_num_rows($checkResult) > 0) {
                     echo "<script>alert('Captain \"$licenseNum\" already exists!');</script>";
                 } else {
-                    $query = "INSERT INTO captains (captainFirstName,captainLastName, profilePic, licenseID, boatName, boat, boatDescription, boatPrice, capacity, crewMembers, requirements) 
-                        VALUES ('$capFName', '$capLName', '$profileImgName', '$licenseNum', '$boatName', '$boatImgJson', '$boatDesc', '$boatPrice', $boatCapacity, '$crewMemJson', '$reqJson')";
+                    $query = "INSERT INTO captains (captainFirstName, captainLastName, profilePic, licenseID, boatName, boat, boatDescription, boatPrice, capacity, crewMembers, requirements) 
+                              VALUES ('$capFName', '$capLName', '$profileImgName', '$licenseNum', '$boatName', '$boatImgJson', '$boatDesc', '$boatPrice', $boatCapacity, '$crewMemJson', '$reqJson')";
                     $result = mysqli_query($db, $query);
 
                     if ($result) {
@@ -125,7 +130,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         $accountType = 'captain';
 
                         $adminQuery = "INSERT INTO account (firstName, lastName, email, password, accountType, licenseNumber) 
-                                    VALUES ('$capFName', '$capLName', '$email', '$hashedPassword', '$accountType', '$licenseNum')";
+                                       VALUES ('$capFName', '$capLName', '$email', '$hashedPassword', '$accountType', '$licenseNum')";
                         $adminResult = mysqli_query($db, $adminQuery);
 
                         if ($adminResult) {
@@ -153,9 +158,9 @@ $result = mysqli_query($db, $query);
 $rows = '';
 if (mysqli_num_rows($result) > 0) {
     while ($row = mysqli_fetch_assoc($result)) {
+        
         $rows .= '<tr>';
         $rows .= '<td>' . htmlspecialchars($row['captainFirstName'] . ' ' . $row['captainLastName']) . '</td>';
-
 
         if (!empty($row['profilePic'])) { 
             $profileImagePath = 'uploads/' . $row['profilePic'];
@@ -165,7 +170,15 @@ if (mysqli_num_rows($result) > 0) {
         }
 
         $rows .= '<td>' . htmlspecialchars($row['licenseID']) . '</td>';
-        $rows .= '<td>' . htmlspecialchars($row['crewMembers']) . '</td>';
+
+        $crewMembersArray = json_decode($row['crewMembers'], true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($crewMembersArray)) {
+            $crewMembersString = implode(', ', $crewMembersArray);
+        } else {
+            $crewMembersString = 'No crew members';
+        }
+        $rows .= '<td>' . htmlspecialchars($crewMembersString) . '</td>';
+
         $rows .= '<td>' . htmlspecialchars($row['boatName']) . '</td>';
 
         $boatImages = json_decode($row['boat']);
@@ -182,17 +195,21 @@ if (mysqli_num_rows($result) > 0) {
 
         $requirements = json_decode($row['requirements']);
         $rows .= '<td>';
-        foreach ($requirements as $requirement) {
-            $requirementPath = 'uploads/' . $requirement;
-            $rows .= '<img src="' . $requirementPath . '" alt="Requirement Image" style="max-width: 50px; max-height: 50px;">';
+        if ($requirements !== null && json_last_error() === JSON_ERROR_NONE) {
+            foreach ($requirements as $requirement) {
+                $requirementPath = 'uploads/' . $requirement;
+                $rows .= '<img src="' . $requirementPath . '" alt="Requirement Image" style="max-width: 50px; max-height: 50px;">';
+            }
+        } else {
+            $rows .= 'No requirements';
         }
         $rows .= '</td>'; 
 
         $rows .= '<td>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModal_' . $row['licenseID'] . '">
+                    <button type="button" class="editBtn" style="background-color: green; border: none; width: 50px; height: 30px; color: white; border-radius: 5px;" data-bs-toggle="modal" data-bs-target="#editModal_' . $row['licenseID'] . '">
                       Edit
                     </button>
-                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal_' . $row['licenseID'] . '">
+                    <button type="button" class="deleteBtn" style="background-color: red; border: none; width: 50px; height: 30px; color: white; border-radius: 5px;" data-bs-toggle="modal" data-bs-target="#deleteModal_' . $row['licenseID'] . '">
                       Delete
                     </button>
                   </td>';
@@ -201,6 +218,7 @@ if (mysqli_num_rows($result) > 0) {
 } else {
     echo "<script>swal.fire('Oops!', 'No records found!', 'warning');</script>";
 }
+
 ?>
 
 
@@ -213,6 +231,7 @@ if (mysqli_num_rows($result) > 0) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Captain List</title>
+    
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
     <link href="css/navbar.css" rel="stylesheet">
     <style>
@@ -327,32 +346,13 @@ if (mysqli_num_rows($result) > 0) {
             float: left;
             color: green;
         }
+        
+        .preview-container img {
+            max-width: 100%;
+            height: 100px;
+        }
 
-        .modal {
-            display: none;
-            position: absolute;
-            margin-left: 350px;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 700px;
-            height: 700px;
-            overflow: auto;
-            border-radius: 10px;
-            padding-top: 60px;
-            
-            
-        }
-        .modal-content {
-            font-size: 24px;
-            background-color: #fefefe;
-            border-radius: 10px;
-            margin: 5% auto;
-            margin-left: 5%;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-        }
+
         .close {
             color: #aaa;
             float: right;
@@ -381,15 +381,96 @@ if (mysqli_num_rows($result) > 0) {
             background-color: rgba(0, 0, 0, 0.5);
             z-index: 1;
         }
-        .preview-container img {
-            max-width: 100px;
-            margin: 10px;
-        }
         .bx {
             color: black;
             font-size: 40px;
             margin-right: 50px;
         }
+        
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            max-width: 600px; 
+            margin: 0 auto;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 700px;
+            max-height: 600px;
+            overflow: auto;
+            border-radius: 10px;
+            padding-top: 50px; 
+            background-color: #fefefe; 
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            border-radius: 10px;
+            padding: 2px;
+            width: calc(100% - 40px); 
+            margin: 0 auto; 
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 2px;
+        }
+
+        .form-group label {
+            font-size: 20px;
+            margin-bottom: 2px;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 2px;
+            border: 1px solid #ccc;
+            border-radius: 0.25rem;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.075);
+        }
+
+        /* Style for file inputs */
+        .form-group input[type="file"] {
+            padding: 0; 
+            border: none; 
+        }
+
+        /* Style for preview container */
+        .preview-container {
+            margin-top: 0.5rem;
+        }
+
+        /* Style for buttons in modal footer */
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            padding: 20px 0 10px;
+            gap: 10px; /* Space between buttons */
+        }
+
+        /* Style for primary button */
+        .btn-warning {
+            background-color: #ffc107; /* Warning button color */
+            color: #212529;
+            border: none;
+        }
+
+        /* Style for close button */
+        .btn-danger {
+            background-color: red;
+            color: white;
+            border: none;
+            font-size: 1rem;
+        }
+
 
         @media (max-width: 800px) {
             .dashboard .section-header {
@@ -504,59 +585,59 @@ if (mysqli_num_rows($result) > 0) {
             <div class="modal-content">
                 <span class="close">&times;</span>
                 <h2 style="padding-bottom: 20px;">Add Captain</h2>
-                <form id="addCaptainForm" method="POST" enctype="multipart/form-data">
-                    <div>
+                <form class="modal-form" id="addCaptainForm" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
                         <label for="captainFName">First Name:</label>
-                        <input type="text" style="margin-left: 20px;" id="captainFName" class="inputTypes" name="forCaptainFName" required>
+                        <input type="text" id="captainFName" class="inputTypes" name="forCaptainFName" required>
                     </div>
-                    <div>
+                    <div class="form-group">
                         <label for="captainLName">Last Name:</label>
-                        <input type="text" style="margin-left: 20px;" id="captainLName" class="inputTypes" name="forCaptainLName" required>
+                        <input type="text" id="captainLName" class="inputTypes" name="forCaptainLName" required>
                     </div>
-                    <div>
+                    <div class="form-group">
                         <label for="profile">Upload Profile:</label>
-                        <input type="file" style="margin-left: 65px;" id="profile" name="forProfile">
+                        <input type="file" id="profile" name="forProfile">
                     </div>
-                    <div>
+                    <div class="form-group">
                         <label for="licenseNumber">License Number:</label>
-                        <input type="text" style="margin-left: 20px;" id="licenseNumber" class="inputTypes" name="forLicenseNumber" required>
+                        <input type="text" id="licenseNumber" class="inputTypes" name="forLicenseNumber" required>
                     </div>
-                    <div>
-                        <label for="boatName">Boat Name</label>:</label>
-                        <input type="text" style="margin-left: 20px;" id="boatName" class="inputTypes" name="forBoatName" required>
+                    <div class="form-group">
+                        <label for="boatName">Boat Name:</label>
+                        <input type="text" id="boatName" class="inputTypes" name="forBoatName" required>
                     </div>
-                    <div>
+                    <div class="form-group">
                         <label for="boat">Upload Boat Images:</label>
                         <input type="file" id="boat" name="forBoat[]" multiple onchange="previewBoats(event)">
+                        <div class="preview-container" id="boatsPreview"></div>
                     </div>
-                    <div class="preview-container" id="boatsPreview"></div>
-                    <div>
+                    <div class="form-group">
                         <label for="boatDes">Boat Description:</label>
-                        <input type="text" style="margin-left: 20px;" id="boatDes" class="inputTypes" name="forBoatDes" required>
+                        <input type="text" id="boatDes" class="inputTypes" name="forBoatDes" required>
                     </div>
-                    <div>
+                    <div class="form-group">
                         <label for="boatPrice">Boat Price:</label>
-                        <input type="text" style="margin-left: 20px;" id="boatPrice" class="inputTypes" name="forBoatPrice" required>
+                        <input type="text" id="boatPrice" class="inputTypes" name="forBoatPrice" required>
                     </div>
-                    <div>
+                    <div class="form-group">
                         <label for="boatCapacity">Boat Capacity:</label>
-                        <input type="text" style="margin-left: 20px;" id="boatCapacity" class="inputTypes" name="forBoatCapacity" required>
+                        <input type="text" id="boatCapacity" class="inputTypes" name="forBoatCapacity" required>
                     </div>
-                    <div>
+                    <div class="form-group">
                         <label for="crewMembers">Crew Members:</label>
                         <div id="crewMembers">
                             <input type="text" name="forCrew[]" placeholder="Crew Member Name" required>
                         </div>
                         <button type="button" id="addCrewMember">Add Crew Member</button>
                     </div>
-                    <div>
+                    <div class="form-group">
                         <label for="requirements">Upload Requirements:</label>
                         <input type="file" id="requirements" name="forRequirements[]" multiple required>
                     </div>
                     <input type="hidden" name="action" value="saveCaptain">
-                    <div class="modal-footer" style="padding: 20px 0px 10px 0px; margin-left: 320px;">
+                    <div class="modal-footer">
                         <button type="submit" class="btn btn-warning" id="saveCaptain">Add</button>
-                        <button type="button" class="btn" style="background-color: red; font-size: 20px; color: white; border: none;" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
                     </div>
                 </form>
             </div>

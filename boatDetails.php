@@ -294,7 +294,7 @@ if (isset($_GET['licenseID'])) {
 
         <div class="boatDet" style="width: 65%">
             <h2 class="boat-name"><?php echo $boatName; ?></h2>
-            <p class="desc" style="margin-left: 40px; font-size: 20px; margin-top: 5px;"><?php echo $boatDescription; ?></p>    
+            <p class="desc" style="margin-left: 40px; font-size: 20px; margin-top: 5px; text-align: left;"><?php echo $boatDescription; ?></p>    
             <div class="ratingsFeed">
                 <div class="flex-container">
                     <img src="<?php echo $profilePic; ?>" alt="Profile Image" class="profile-image">

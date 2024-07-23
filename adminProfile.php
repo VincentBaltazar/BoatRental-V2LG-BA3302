@@ -66,12 +66,12 @@ $stmt->close();
         }
         .profile-container {
             width: 60%;
-            margin: 10px auto; /* Center align and add margin */
+            margin: 10px auto; 
             border-radius: 10px;
             background-color: white;
             text-align: left;
             padding: 20px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Add shadow for better visibility */
+            box-shadow: 0 0 10px rgba(0,0,0,0.1); 
         }
         .profile-container h2 {
             font-size: 24px;

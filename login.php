@@ -29,6 +29,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $_SESSION['firstName'] = $user['firstName'];
                     $_SESSION['lastName'] = $user['lastName'];
                     $_SESSION['accountType'] = $user['accountType'];
+                    $_SESSION['email'] = $user['email'];
+
 
                     $redirectUrl = '';
 
@@ -64,6 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         .spaced-text {
             font-family: 'Cursive';
@@ -71,6 +74,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: black;
             letter-spacing: 0.2em; 
         }
+        .google-signin {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+        .g_id_signin > div {
+            width: 100%;
+        }
+
     </style>
 </head>
 <body>
@@ -115,13 +128,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <button type="submit" class="btn btn-lg btn-primary w-100 fs-6">Login</button>
                         </div>
                         <div class="input-group mb-3">
-                            <button type="button" class="btn btn-lg btn-light w-100 fs-6" onclick="handleGoogleSignIn()">
-                                <img src="img/boat/google.png" style="width:30px" class="me-2">
-                                <small>Sign In with Google</small>
-                            </button>
+                            <div id="g_id_onload"
+                                 data-client_id="843854210696-9cao0fkvimufgsc9h9ljvblq6973i16q.apps.googleusercontent.com"
+                                 data-callback="handleCredentialResponse"
+                                 data-auto_prompt="false">
+                            </div>
+                            <div class="g_id_signin w-100 google-signin" data-type="standard"></div>
                         </div>
                         <div class="row">
-                            <small class="sign" style="text-align: center;">Don't have an account?<a href="signup.php">Sign Up</a></small>
+                            <small class="sign" style="text-align: center; ">Don't have an account?<a href="signup.php">Sign Up</a></small>
                         </div>
                     </div>
                 </form>
@@ -130,8 +145,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 
     <script>
-    function handleGoogleSignIn() {
-        window.location.href = 'http://localhost:3000/auth/google'; 
+    function handleCredentialResponse(response) {
+        const responsePayload = parseJwt(response.credential);
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "api\google-callback.php", true);
+        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                window.location.href = xhr.responseText;
+            }
+        };
+        xhr.send(JSON.stringify({
+            credential: response.credential,
+            clientId: "843854210696-9cao0fkvimufgsc9h9ljvblq6973i16q.apps.googleusercontent.com"
+        }));
+    }
+
+    function parseJwt(token) {
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        return JSON.parse(jsonPayload);
     }
 
     <?php if (!empty($errorMessage)) : ?>

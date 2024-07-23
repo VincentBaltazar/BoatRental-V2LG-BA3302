@@ -23,6 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $arrivalTime = mysqli_real_escape_string($db, $_POST['arrivalTime']); 
     $numberOfPax = mysqli_real_escape_string($db, $_POST['numberOfPax']);
     $email = mysqli_real_escape_string($db, $email);
+    $activity = mysqli_real_escape_string($db, $_POST['activity']);
 
     $rentalDuration = 1;
     $totalPrice = $boatPrice * $rentalDuration;
@@ -38,6 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "<li>Arrival Time: $arrivalTime</li>";
         echo "<li>Number of Pax: $numberOfPax</li>";
         echo "<li>Total Price: $totalPrice</li>";
+        echo "<li>Selected Activity: $activity</li>";
         echo "</ul>";
 
     // $query = "INSERT INTO rentals (licenseID, boatName, renterName, renterEmail, renterNum, rentalDate, arrivalTime, numberOfPax, totalPrice) 
@@ -105,6 +107,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="mb-3">
                 <label for="numberOfPax" class="form-label">Number of Pax</label>
                 <input type="number" class="form-control" id="numberOfPax" name="numberOfPax" min="10" max="<?php $capacity ?>" required>
+            </div>
+            <div class="mb-3">
+                <label for="activity" class="form-label">Select an Activity</label>
+                <select class="form-control" id="activity" name="activity" required>
+                    <option value="" disabled selected>Select an activity</option>
+                    <option value="island_hopping">Island Hopping</option>
+                    <option value="snorkeling">Snorkeling</option>
+                    <option value="fish_feeding">Fish Feeding</option>
+                </select>
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>

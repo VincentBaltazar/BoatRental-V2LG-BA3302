@@ -45,7 +45,7 @@
             </a>
         </li>
         <li>
-            <a href="logout.php" style="margin-top: 280px;">
+            <a href="logout.php" style="margin-top: 230px;">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 <span>Logout</span>
             </a>
