@@ -1,0 +1,4 @@
+# Secrets
+secretkeys.json
+.env
+config/secretkeys.php
